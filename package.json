@@ -1,0 +1,29 @@
+{
+  "name": "tenryo-chatbot-server",
+  "version": "1.0.0",
+  "description": "天領酒造 AI Chatbot Server with GPT API",
+  "main": "chatbot-server.js",
+  "scripts": {
+    "start": "node chatbot-server.js",
+    "dev": "nodemon chatbot-server.js"
+  },
+  "keywords": [
+    "chatbot",
+    "openai",
+    "gpt",
+    "sake",
+    "tenryo"
+  ],
+  "author": "Tenryo Brewery",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.0",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

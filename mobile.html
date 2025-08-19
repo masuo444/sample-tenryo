@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>天領酒造 - 岐阜・下呂の歴史ある酒蔵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-brown: #4a3426;
+            --secondary-brown: #6b4a3a;
+            --accent-gold: #d4af37;
+            --bright-gold: #ffd700;
+            --cream: #faf8f3;
+            --text-dark: #2c1810;
+            --text-light: #f5f5f5;
+            --mobile-padding: 1rem;
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #f0e6d2 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
+        }
+
+        /* モバイルヘッダー */
+        .mobile-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-brown);
+            padding: calc(var(--safe-area-inset-top) + 0.75rem) 1rem 0.75rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--bright-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-brown);
+        }
+
+        .logo-text {
+            color: var(--bright-gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* ハンバーガーメニュー */
+        .menu-button {
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .menu-button span {
+            width: 24px;
+            height: 2px;
+            background: var(--bright-gold);
+            transition: all 0.3s;
+        }
+
+        .menu-button.active span:nth-child(1) {
+            transform: rotate(45deg) translateY(6px);
+        }
+
+        .menu-button.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-button.active span:nth-child(3) {
+            transform: rotate(-45deg) translateY(-6px);
+        }
+
+        /* モバイルナビゲーション */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--primary-brown);
+            padding: calc(var(--safe-area-inset-top) + 5rem) 1.5rem 2rem;
+            transition: right 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .mobile-nav.active {
+            right: 0;
+        }
+
+        .mobile-nav a {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 1.1rem;
+        }
+
+        .mobile-nav a:active {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* オーバーレイ */
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 998;
+        }
+
+        .nav-overlay.active {
+            display: block;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding-top: calc(var(--safe-area-inset-top) + 60px);
+            min-height: 100vh;
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            padding: 2rem var(--mobile-padding);
+            text-align: center;
+            background: linear-gradient(rgba(74, 52, 38, 0.7), rgba(74, 52, 38, 0.7));
+            color: var(--text-light);
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            color: var(--bright-gold);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .hero p {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        /* クラバトラー紹介（モバイル） */
+        .kurabatler-intro-mobile {
+            background: white;
+            margin: 1rem;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .kurabatler-image-mobile {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-gold);
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .kurabatler-text-mobile h3 {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kurabatler-text-mobile p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* セクション共通 */
+        .section {
+            padding: 2rem var(--mobile-padding);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-brown);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gold);
+        }
+
+        /* カードスタイル（モバイル用） */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 銘柄カード（モバイル最適化） */
+        .product-card-mobile {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .product-card-mobile:active {
+            transform: scale(0.98);
+        }
+
+        .product-header {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--bright-gold) 100%);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .product-icon {
+            font-size: 2rem;
+            background: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-header-text {
+            flex: 1;
+        }
+
+        .product-name {
+            color: var(--primary-brown);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .product-category {
+            color: rgba(44, 24, 16, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .product-body {
+            padding: 1rem;
+        }
+
+        .product-description {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .product-specs-inline {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+        }
+
+        .spec-inline {
+            text-align: center;
+        }
+
+        .spec-inline-label {
+            color: #999;
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .spec-inline-value {
+            color: var(--primary-brown);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* チャットボットボタン（モバイル） */
+        .chatbot-fab {
+            position: fixed;
+            bottom: calc(var(--safe-area-inset-bottom) + 20px);
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--bright-gold) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .chatbot-fab:active {
+            transform: scale(0.9);
+        }
+
+        .chatbot-fab-icon {
+            font-size: 1.5rem;
+        }
+
+        /* チャットボット（フルスクリーン） */
+        .chatbot-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        .chatbot-fullscreen.active {
+            display: flex;
+        }
+
+        .chatbot-header-mobile {
+            background: linear-gradient(135deg, var(--primary-brown) 0%, var(--secondary-brown) 100%);
+            padding: calc(var(--safe-area-inset-top) + 1rem) 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .chatbot-header-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chatbot-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--bright-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-brown);
+        }
+
+        .chatbot-close-mobile {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .chatbot-messages-mobile {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8f8f8;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message-mobile {
+            margin-bottom: 1rem;
+            display: flex;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-mobile.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble-mobile {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message-mobile.bot .message-bubble-mobile {
+            background: white;
+            color: var(--text-dark);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-mobile.user .message-bubble-mobile {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--bright-gold) 100%);
+            color: white;
+        }
+
+        /* 入力エリア（モバイル） */
+        .chatbot-input-mobile {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 0.5rem;
+            padding-bottom: calc(var(--safe-area-inset-bottom) + 1rem);
+        }
+
+        .chat-input-mobile {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .chat-input-mobile:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .input-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--bright-gold) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .input-button:active {
+            transform: scale(0.9);
+        }
+
+        .voice-button.recording {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+        }
+
+        /* クイック返信（モバイル） */
+        .quick-replies-mobile {
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .quick-reply-mobile {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid var(--accent-gold);
+            border-radius: 20px;
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-reply-mobile:active {
+            background: var(--accent-gold);
+            color: white;
+        }
+
+        /* 商品詳細モーダル（モバイル） */
+        .product-modal-mobile {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: none;
+            flex-direction: column;
+            z-index: 2001;
+            overflow: hidden;
+        }
+
+        .product-modal-mobile.active {
+            display: flex;
+        }
+
+        .modal-header-mobile {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--bright-gold) 100%);
+            padding: calc(var(--safe-area-inset-top) + 1rem) 1rem 1rem;
+            color: var(--primary-brown);
+            position: relative;
+        }
+
+        .modal-close-mobile {
+            position: absolute;
+            top: calc(var(--safe-area-inset-top) + 1rem);
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-brown);
+            cursor: pointer;
+        }
+
+        .modal-title-mobile {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+            padding-right: 40px;
+        }
+
+        .modal-category-mobile {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .modal-body-mobile {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem 1rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-section-mobile {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section-mobile h4 {
+            color: var(--primary-brown);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-description-mobile {
+            color: var(--text-dark);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-specs-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .modal-spec-card {
+            background: #f8f8f8;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-spec-label-mobile {
+            color: #666;
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .modal-spec-value-mobile {
+            color: var(--primary-brown);
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .tasting-notes-mobile {
+            background: #faf8f3;
+            border: 1px solid var(--accent-gold);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .award-badge-mobile {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: var(--primary-brown);
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 0.25rem;
+        }
+
+        /* フッター（モバイル） */
+        .footer-mobile {
+            background: var(--primary-brown);
+            color: var(--text-light);
+            padding: 2rem 1rem calc(var(--safe-area-inset-bottom) + 2rem);
+            text-align: center;
+        }
+
+        .footer-mobile h4 {
+            color: var(--bright-gold);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-mobile p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-mobile a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        /* タッチ最適化 */
+        button, a, .card, .product-card-mobile {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* スクロール最適化 */
+        .scroll-container {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+        }
+
+        /* 横スクロール防止 */
+        html, body {
+            overflow-x: hidden;
+        }
+
+        /* フォントサイズ自動調整防止 */
+        body {
+            -webkit-text-size-adjust: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- モバイルヘッダー -->
+    <header class="mobile-header">
+        <div class="header-content">
+            <div class="logo-compact">
+                <div class="logo-icon">天</div>
+                <div class="logo-text">天領酒造</div>
+            </div>
+            <button class="menu-button" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- モバイルナビゲーション -->
+    <nav class="mobile-nav" id="mobileNav">
+        <a href="#about" onclick="closeMobileMenu()">酒造について</a>
+        <a href="#products" onclick="closeMobileMenu()">銘柄一覧</a>
+        <a href="#history" onclick="closeMobileMenu()">歴史と伝統</a>
+        <a href="#access" onclick="closeMobileMenu()">アクセス</a>
+        <a href="#contact" onclick="closeMobileMenu()">お問い合わせ</a>
+    </nav>
+    <div class="nav-overlay" id="navOverlay" onclick="closeMobileMenu()"></div>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <h1>飛騨の恵みが醸す<br>至高の一滴</h1>
+            <p>340年以上の歴史を持つ天領酒造<br>飛騨山脈の伏流水と酒造好適米で醸す極上の日本酒</p>
+        </section>
+
+        <!-- クラバトラー紹介 -->
+        <div class="kurabatler-intro-mobile">
+            <img src="クラバトラーキャラ.png" alt="クラバトラー" class="kurabatler-image-mobile">
+            <div class="kurabatler-text-mobile">
+                <h3>クラバトラーがご案内</h3>
+                <p>AI酒蔵ガイド「クラバトラー」が、天領酒造の歴史と魅力をご案内いたします。</p>
+            </div>
+        </div>
+
+        <!-- 代表銘柄 -->
+        <section id="products" class="section">
+            <h2 class="section-title">代表銘柄</h2>
+            
+            <div class="product-card-mobile" onclick="openProductModalMobile('junmai-daiginjo')">
+                <div class="product-header">
+                    <div class="product-icon">🍶</div>
+                    <div class="product-header-text">
+                        <div class="product-name">純米大吟醸 ひだほまれ天領</div>
+                        <div class="product-category">JUNMAI DAIGINJO</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">岐阜県産「ひだほまれ」を45%まで磨き上げた最高峰。華やかな香りとまろやかな味わい。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">45%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">15度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">使用米</div>
+                            <div class="spec-inline-value">ひだほまれ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card-mobile" onclick="openProductModalMobile('daiginjo')">
+                <div class="product-header">
+                    <div class="product-icon">🏆</div>
+                    <div class="product-header-text">
+                        <div class="product-name">大吟醸 吟</div>
+                        <div class="product-category">DAIGINJO</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">山田錦を贅沢に使用。フルーティーな吟醸香と繊細な味わいのバランスが絶妙。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">40%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">16度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">使用米</div>
+                            <div class="spec-inline-value">山田錦</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card-mobile" onclick="openProductModalMobile('tokubetsu-junmai')">
+                <div class="product-header">
+                    <div class="product-icon">✨</div>
+                    <div class="product-header-text">
+                        <div class="product-name">特別純米酒 飛切り</div>
+                        <div class="product-category">TOKUBETSU JUNMAI</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">食中酒として最適。すっきりとした飲み口で、どんな料理にも合う万能選手。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">60%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">15度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">味わい</div>
+                            <div class="spec-inline-value">中口</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card-mobile" onclick="openProductModalMobile('junmai-ginjo')">
+                <div class="product-header">
+                    <div class="product-icon">🌸</div>
+                    <div class="product-header-text">
+                        <div class="product-name">純米吟醸 ひだほまれ</div>
+                        <div class="product-category">JUNMAI GINJO</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">地元産ひだほまれを55%精米。穏やかな香りとお米の旨みが調和した逸品。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">55%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">15度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">使用米</div>
+                            <div class="spec-inline-value">ひだほまれ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card-mobile" onclick="openProductModalMobile('junmai')">
+                <div class="product-header">
+                    <div class="product-icon">🏔️</div>
+                    <div class="product-header-text">
+                        <div class="product-name">純米酒 天領</div>
+                        <div class="product-category">JUNMAI-SHU</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">天領酒造の定番純米酒。米の旨みをしっかりと感じられる、飽きの来ない味わい。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">65%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">15度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">味わい</div>
+                            <div class="spec-inline-value">やや辛口</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card-mobile" onclick="openProductModalMobile('seasonal')">
+                <div class="product-header">
+                    <div class="product-icon">❄️</div>
+                    <div class="product-header-text">
+                        <div class="product-name">四季の酒 純米大吟醸</div>
+                        <div class="product-category">SEASONAL LIMITED</div>
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-description">季節限定の純米大吟醸。低温貯蔵でフレッシュな味わいを保つ、特別な一本。</p>
+                    <div class="product-specs-inline">
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">精米歩合</div>
+                            <div class="spec-inline-value">50%</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">アルコール</div>
+                            <div class="spec-inline-value">15度</div>
+                        </div>
+                        <div class="spec-inline">
+                            <div class="spec-inline-label">保存方法</div>
+                            <div class="spec-inline-value">要冷蔵</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 歴史セクション -->
+        <section id="history" class="section">
+            <h2 class="section-title">天領酒造の歴史</h2>
+            
+            <div class="card">
+                <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">1680年（延宝8年）</h3>
+                <p>近江国日野から飛騨国に移り住んだ日野屋佐兵衛が創業。飛騨の人情と自然に魅了され、萩原の地に酒造りを始める。</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">1956年（昭和31年）</h3>
+                <p>天領酒造株式会社として法人化。伝統を守りながら近代化への一歩を踏み出す。</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">2005年〜2009年</h3>
+                <p>JAL国際線ビジネスクラスで「純米大吟醸天領」が採用。世界の空で日本の味を届ける。</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--accent-gold); margin-bottom: 0.5rem;">現在</h3>
+                <p>8代目当主のもと、100%酒造好適米使用と自社精米にこだわり、最高品質の日本酒を醸造。</p>
+            </div>
+        </section>
+
+        <!-- アクセス情報 -->
+        <section id="access" class="section">
+            <h2 class="section-title">アクセス・見学案内</h2>
+            
+            <div class="card">
+                <h4 style="color: var(--primary-brown); margin-bottom: 0.5rem;">📍 所在地</h4>
+                <p>〒509-2517<br>岐阜県下呂市萩原町萩原1289-1</p>
+            </div>
+            
+            <div class="card">
+                <h4 style="color: var(--primary-brown); margin-bottom: 0.5rem;">🚃 電車でのアクセス</h4>
+                <p>JR高山本線「飛騨萩原駅」より徒歩10分</p>
+            </div>
+            
+            <div class="card">
+                <h4 style="color: var(--primary-brown); margin-bottom: 0.5rem;">⏰ 見学時間</h4>
+                <p>9:00〜17:00（最終受付16:00）<br>定休日：水曜日、年末年始</p>
+            </div>
+            
+            <div class="card">
+                <h4 style="color: var(--primary-brown); margin-bottom: 0.5rem;">📞 ご予約・お問い合わせ</h4>
+                <p>TEL: <a href="tel:0576521515">0576-52-1515</a><br>
+                FAX: 0576-52-3737</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer-mobile">
+        <h4>天領酒造株式会社</h4>
+        <p>〒509-2517 岐阜県下呂市萩原町萩原1289-1</p>
+        <p>TEL: <a href="tel:0576521515">0576-52-1515</a></p>
+        <p>&copy; 2024 天領酒造株式会社</p>
+    </footer>
+
+    <!-- チャットボットFAB -->
+    <div class="chatbot-fab" onclick="openChatbot()">
+        <span class="chatbot-fab-icon">💬</span>
+    </div>
+
+    <!-- チャットボット（フルスクリーン） -->
+    <div class="chatbot-fullscreen" id="chatbotFullscreen">
+        <div class="chatbot-header-mobile">
+            <div class="chatbot-header-info">
+                <div class="chatbot-avatar">天</div>
+                <div>
+                    <div style="font-weight: bold;">クラバトラー</div>
+                    <div style="font-size: 0.8rem; opacity: 0.9;">AI酒蔵ガイド</div>
+                </div>
+            </div>
+            <button class="chatbot-close-mobile" onclick="closeChatbot()">✕</button>
+        </div>
+        
+        <div class="chatbot-messages-mobile" id="chatMessages">
+            <div class="message-mobile bot">
+                <div class="message-bubble-mobile">
+                    こんにちは！天領酒造へようこそ。<br><br>
+                    銘柄のご相談、酒蔵見学、歴史について等、お気軽にお尋ねください！
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-replies-mobile">
+            <button class="quick-reply-mobile" onclick="sendQuickReply('おすすめの銘柄は？')">おすすめの銘柄</button>
+            <button class="quick-reply-mobile" onclick="sendQuickReply('純米大吟醸について')">純米大吟醸</button>
+            <button class="quick-reply-mobile" onclick="sendQuickReply('酒蔵見学について')">酒蔵見学</button>
+            <button class="quick-reply-mobile" onclick="sendQuickReply('歴史を教えて')">歴史</button>
+        </div>
+        
+        <div class="chatbot-input-mobile">
+            <input type="text" class="chat-input-mobile" id="chatInput" placeholder="メッセージを入力...">
+            <button class="input-button voice-button" id="voiceBtn" onclick="toggleVoiceInput()">🎤</button>
+            <button class="input-button" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- 商品詳細モーダル -->
+    <div class="product-modal-mobile" id="productModalMobile">
+        <div class="modal-header-mobile">
+            <button class="modal-close-mobile" onclick="closeProductModalMobile()">✕</button>
+            <h2 class="modal-title-mobile" id="modalTitle"></h2>
+            <p class="modal-category-mobile" id="modalCategory"></p>
+        </div>
+        <div class="modal-body-mobile">
+            <div class="modal-section-mobile">
+                <h4>🍶 商品概要</h4>
+                <p class="modal-description-mobile" id="modalDescription"></p>
+                <div id="modalAwards"></div>
+            </div>
+            
+            <div class="modal-section-mobile">
+                <h4>📊 詳細スペック</h4>
+                <div class="modal-specs-grid" id="modalSpecs"></div>
+            </div>
+            
+            <div class="modal-section-mobile">
+                <h4>🎯 テイスティングノート</h4>
+                <div class="tasting-notes-mobile" id="tastingNotes"></div>
+            </div>
+            
+            <div class="modal-section-mobile">
+                <h4>🍽️ おすすめペアリング</h4>
+                <p id="modalPairing"></p>
+            </div>
+            
+            <div class="modal-section-mobile">
+                <h4>🌡️ 最適温度</h4>
+                <p id="modalTemperature"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 商品詳細データ（前のコードから継承）
+        const productDetails = {
+            'junmai-daiginjo': {
+                title: '純米大吟醸 ひだほまれ天領',
+                category: 'JUNMAI DAIGINJO',
+                description: '岐阜県産「ひだほまれ」を45%まで磨き上げた天領酒造の最高峰。華やかで上品な吟醸香と、絹のようにまろやかな味わいが特徴です。',
+                awards: ['JAL国際線ビジネスクラス採用', '全国新酒鑑評会 優秀賞'],
+                specs: {
+                    '精米歩合': '45%',
+                    'アルコール度': '15度',
+                    '日本酒度': '+3',
+                    '酸度': '1.3',
+                    '使用米': 'ひだほまれ',
+                    '酵母': '9号酵母'
+                },
+                tasting: '香り：メロン、白桃 / 味わい：やや辛口 / ボディ：ミディアム / 余韻：長い',
+                pairing: '白身魚の刺身、蒸し鮑、湯波料理、塩焼き鮎、薄味の煮物',
+                temperature: '冷やして（8-12℃）がおすすめ'
+            },
+            'daiginjo': {
+                title: '大吟醸 吟',
+                category: 'DAIGINJO',
+                description: '酒米の王様「山田錦」を40%まで磨いた贅沢な大吟醸。フルーティーな吟醸香と繊細で上品な味わいのバランスが絶妙です。',
+                awards: ['JAL国内線ファーストクラス採用', 'ファーンボロー国際航空ショー VIP贈答品'],
+                specs: {
+                    '精米歩合': '40%',
+                    'アルコール度': '16度',
+                    '日本酒度': '+4',
+                    '酸度': '1.2',
+                    '使用米': '山田錦',
+                    '酵母': '協会1801号'
+                },
+                tasting: '香り：リンゴ、洋梨 / 味わい：辛口 / ボディ：ライト / 余韻：上品で長い',
+                pairing: 'ふぐ刺し、車海老、雲丹、穴子の白焼き',
+                temperature: '冷やして（6-10℃）'
+            },
+            'tokubetsu-junmai': {
+                title: '特別純米酒 飛切り',
+                category: 'TOKUBETSU JUNMAI',
+                description: '食中酒として最適な純米酒。60%精米による米の旨みとすっきりとした飲み口のバランスが絶妙です。',
+                awards: ['地元飲食店での定番酒', '食中酒コンテスト入賞'],
+                specs: {
+                    '精米歩合': '60%',
+                    'アルコール度': '15度',
+                    '日本酒度': '+2',
+                    '酸度': '1.5',
+                    '使用米': 'ひだほまれ',
+                    '酵母': '9号酵母'
+                },
+                tasting: '香り：穏やか、米様 / 味わい：中口 / ボディ：ミディアム / 余韻：程よい',
+                pairing: '焼き鳥、煮物、天ぷら、鍋料理、焼き魚',
+                temperature: '冷やから燗まで（10-45℃）'
+            },
+            'junmai-ginjo': {
+                title: '純米吟醸 ひだほまれ',
+                category: 'JUNMAI GINJO',
+                description: '地元産ひだほまれを55%精米した純米吟醸。穏やかな吟醸香とお米本来の旨みが調和した逸品です。',
+                awards: ['岐阜県酒造組合推奨酒', '地域ブランド認定'],
+                specs: {
+                    '精米歩合': '55%',
+                    'アルコール度': '15度',
+                    '日本酒度': '+1',
+                    '酸度': '1.4',
+                    '使用米': 'ひだほまれ',
+                    '酵母': '岐阜酵母'
+                },
+                tasting: '香り：上品、花様 / 味わい：やや甘口 / ボディ：ミディアム / 余韻：優しい',
+                pairing: '山菜料理、川魚の塩焼き、飛騨牛、地鶏料理',
+                temperature: '冷やまたはぬる燗（12-40℃）'
+            },
+            'junmai': {
+                title: '純米酒 天領',
+                category: 'JUNMAI-SHU',
+                description: '天領酒造の定番純米酒。65%精米による米の旨みをしっかりと感じられる、飽きの来ない味わいです。',
+                awards: ['340年の伝統を誇る定番酒', '地元愛飲者No.1'],
+                specs: {
+                    '精米歩合': '65%',
+                    'アルコール度': '15度',
+                    '日本酒度': '+3',
+                    '酸度': '1.6',
+                    '使用米': 'ひだほまれ',
+                    '酵母': '7号酵母'
+                },
+                tasting: '香り：米様、穏やか / 味わい：やや辛口 / ボディ：フル / 余韻：しっかり',
+                pairing: 'おでん、肉じゃが、さば味噌、豚の角煮',
+                temperature: '常温から熱燗（15-50℃）'
+            },
+            'seasonal': {
+                title: '四季の酒 純米大吟醸',
+                category: 'SEASONAL LIMITED',
+                description: '季節限定の特別な純米大吟醸。50%精米による上品な味わいと、低温貯蔵により保たれるフレッシュな風味が特徴です。',
+                awards: ['季節限定品', '数量限定醸造'],
+                specs: {
+                    '精米歩合': '50%',
+                    'アルコール度': '15度',
+                    '日本酒度': '+2',
+                    '酸度': '1.3',
+                    '使用米': 'ひだほまれ',
+                    '保存方法': '要冷蔵'
+                },
+                tasting: '香り：フレッシュ、季節感 / 味わい：中口 / ボディ：ミディアム',
+                pairing: '季節の食材、旬の料理',
+                temperature: 'よく冷やして（5-8℃）'
+            }
+        };
+
+        // モバイルメニューの開閉
+        function toggleMobileMenu() {
+            const nav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('navOverlay');
+            const button = document.querySelector('.menu-button');
+            
+            nav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            button.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const nav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('navOverlay');
+            const button = document.querySelector('.menu-button');
+            
+            nav.classList.remove('active');
+            overlay.classList.remove('active');
+            button.classList.remove('active');
+        }
+
+        // チャットボット開閉
+        function openChatbot() {
+            document.getElementById('chatbotFullscreen').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeChatbot() {
+            document.getElementById('chatbotFullscreen').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // メッセージ送信
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // 返答を生成
+                setTimeout(() => {
+                    const response = generateResponse(message);
+                    addMessage(response, 'bot');
+                }, 500);
+            }
+        }
+
+        function sendQuickReply(message) {
+            addMessage(message, 'user');
+            setTimeout(() => {
+                const response = generateResponse(message);
+                addMessage(response, 'bot');
+            }, 500);
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-mobile ${sender}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble-mobile';
+            bubbleDiv.innerHTML = text;
+            
+            messageDiv.appendChild(bubbleDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 簡単な応答生成
+        function generateResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (message.includes('おすすめ') || message.includes('どれ')) {
+                return '初めての方には「特別純米酒 飛切り」がおすすめです。食中酒として最適で、どんな料理にも合います。<br><br>特別な日には「純米大吟醸 ひだほまれ天領」をどうぞ。JAL国際線でも採用された逸品です。';
+            }
+            
+            if (message.includes('純米大吟醸')) {
+                return '純米大吟醸「ひだほまれ天領」は、岐阜県産「ひだほまれ」を45%まで磨き上げた当蔵の最高峰です。<br><br>華やかな香りとまろやかな味わいが特徴で、JAL国際線ビジネスクラスでも採用されました。';
+            }
+            
+            if (message.includes('見学')) {
+                return '酒蔵見学は事前予約制で承っております。<br><br>【見学時間】9:00〜17:00（最終受付16:00）<br>【定休日】水曜日、年末年始<br>【予約】0576-52-1515<br><br>実際の酒造りの工程をご覧いただき、試飲も可能です。';
+            }
+            
+            if (message.includes('歴史')) {
+                return '天領酒造は1680年（延宝8年）に創業した、340年以上の歴史を持つ酒蔵です。<br><br>創業者の日野屋佐兵衛は、近江国から飛騨に移り住み、この地の美しい自然と温かい人情に魅了されて酒造りを始めました。';
+            }
+            
+            return '申し訳ございません。もう少し詳しくお聞かせいただけますか？<br><br>銘柄のご案内、酒蔵見学、歴史などについてお答えできます。';
+        }
+
+        // 音声入力
+        let recognition = null;
+        let isRecording = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                sendMessage();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('音声認識エラー:', event.error);
+                stopRecording();
+            };
+
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) {
+                alert('お使いのブラウザは音声認識に対応していません。');
+                return;
+            }
+
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            recognition.start();
+            isRecording = true;
+            document.getElementById('voiceBtn').classList.add('recording');
+        }
+
+        function stopRecording() {
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+        }
+
+        // 商品詳細モーダル
+        function openProductModalMobile(productId) {
+            const product = productDetails[productId];
+            if (!product) return;
+
+            document.getElementById('modalTitle').textContent = product.title;
+            document.getElementById('modalCategory').textContent = product.category;
+            document.getElementById('modalDescription').textContent = product.description;
+
+            // 受賞歴
+            const awardsDiv = document.getElementById('modalAwards');
+            if (product.awards.length > 0) {
+                awardsDiv.innerHTML = product.awards.map(award => 
+                    `<span class="award-badge-mobile">${award}</span>`
+                ).join('');
+            }
+
+            // スペック
+            const specsDiv = document.getElementById('modalSpecs');
+            specsDiv.innerHTML = Object.entries(product.specs).map(([label, value]) => 
+                `<div class="modal-spec-card">
+                    <div class="modal-spec-label-mobile">${label}</div>
+                    <div class="modal-spec-value-mobile">${value}</div>
+                </div>`
+            ).join('');
+
+            // テイスティングノート
+            document.getElementById('tastingNotes').innerHTML = product.tasting;
+
+            // ペアリング
+            document.getElementById('modalPairing').textContent = product.pairing;
+
+            // 最適温度
+            document.getElementById('modalTemperature').textContent = product.temperature;
+
+            // モーダルを表示
+            document.getElementById('productModalMobile').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModalMobile() {
+            document.getElementById('productModalMobile').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 入力フィールドでEnterキーを押したときの処理
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // ビューポートの高さを取得してCSS変数に設定（iOS対策）
+        function setViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+    </script>
+</body>
+</html>

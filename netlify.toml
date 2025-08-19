@@ -18,12 +18,11 @@
   to = "/mobile.html"
   status = 200
 
-# SPA対応（必要に応じて）
+# 404フォールバック（最後に配置）
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
 
 # セキュリティヘッダー
 [[headers]]

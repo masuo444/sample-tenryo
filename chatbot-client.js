@@ -1,7 +1,7 @@
 // GPT API連携用のチャットボットクライアント
 class TenryoChatbot {
     constructor(config = {}) {
-        this.apiEndpoint = config.apiEndpoint || 'http://localhost:3000/api/chat';
+        this.apiEndpoint = config.apiEndpoint || '/.netlify/functions/chat';
         this.sessionId = this.generateSessionId();
         this.useGPT = config.useGPT !== false; // デフォルトはGPT使用
         this.fallbackToLocal = config.fallbackToLocal !== false; // API失敗時のフォールバック

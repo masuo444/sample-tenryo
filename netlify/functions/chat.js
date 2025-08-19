@@ -1,4 +1,4 @@
-// Vercel Serverless Function for GPT API integration
+// Netlify Serverless Function for GPT API integration
 
 const { OpenAI } = require('openai');
 
@@ -76,47 +76,66 @@ function detectLanguage(text) {
     }
 }
 
-// Serverless Function のメインハンドラー
-module.exports = async (req, res) => {
-    // CORS設定
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// Netlify Function のメインハンドラー
+exports.handler = async (event, context) => {
+    // CORS設定のためのヘッダー
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
+    };
 
     // OPTIONS リクエスト（プリフライト）への対応
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers,
+            body: ''
+        };
     }
 
     // GET リクエストへの対応（ヘルスチェック）
-    if (req.method === 'GET') {
-        res.status(200).json({ 
-            status: 'ok', 
-            service: 'Tenryo Chatbot API',
-            timestamp: new Date().toISOString()
-        });
-        return;
+    if (event.httpMethod === 'GET') {
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                status: 'ok',
+                service: 'Tenryo Chatbot API (Netlify)',
+                timestamp: new Date().toISOString()
+            })
+        };
     }
 
     // POST リクエストのみ処理
-    if (req.method !== 'POST') {
-        res.status(405).json({ success: false, error: 'Method not allowed' });
-        return;
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ success: false, error: 'Method not allowed' })
+        };
     }
 
     try {
-        const { message, sessionId = 'default', language = 'auto' } = req.body;
+        const body = JSON.parse(event.body);
+        const { message, sessionId = 'default', language = 'auto' } = body;
 
         if (!message) {
-            res.status(400).json({ success: false, error: 'Message is required' });
-            return;
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ success: false, error: 'Message is required' })
+            };
         }
 
         // APIキーの確認
         if (!process.env.OPENAI_API_KEY) {
-            res.status(500).json({ success: false, error: 'OpenAI API key not configured' });
-            return;
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({ success: false, error: 'OpenAI API key not configured' })
+            };
         }
 
         // セッション履歴を取得または初期化
@@ -150,12 +169,16 @@ module.exports = async (req, res) => {
             history.splice(0, 2);
         }
 
-        res.status(200).json({ 
-            success: true, 
-            response: response,
-            detectedLanguage: detectLanguage(message),
-            timestamp: new Date().toISOString()
-        });
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                response: response,
+                detectedLanguage: detectLanguage(message),
+                timestamp: new Date().toISOString()
+            })
+        };
 
     } catch (error) {
         console.error('Error:', error);
@@ -172,10 +195,14 @@ module.exports = async (req, res) => {
             statusCode = 401;
         }
 
-        res.status(statusCode).json({ 
-            success: false, 
-            error: errorMessage,
-            timestamp: new Date().toISOString()
-        });
+        return {
+            statusCode,
+            headers,
+            body: JSON.stringify({
+                success: false,
+                error: errorMessage,
+                timestamp: new Date().toISOString()
+            })
+        };
     }
 };

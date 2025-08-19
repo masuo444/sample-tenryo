@@ -1,0 +1,56 @@
+[build]
+  # ビルドコマンド（静的サイトなので不要だがNetlify要求）
+  command = "echo 'No build needed for static site'"
+  
+  # 公開ディレクトリ（ルートディレクトリを指定）
+  publish = "."
+  
+  # Functions の場所
+  functions = "netlify/functions"
+
+[build.environment]
+  # Node.js バージョン指定
+  NODE_VERSION = "18"
+
+# リダイレクト設定
+[[redirects]]
+  from = "/mobile"
+  to = "/mobile.html"
+  status = 200
+
+# SPA対応（必要に応じて）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
+
+# セキュリティヘッダー
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# 静的ファイルのキャッシュ設定
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"

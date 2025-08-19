@@ -1,16 +1,11 @@
 // Vercel Serverless Function for GPT API integration
-// Required packages are automatically handled by Vercel
+
+const { OpenAI } = require('openai');
 
 // OpenAI設定
-const { OpenAI } = require('openai');
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY, // .envファイルにAPIキーを設定
+    apiKey: process.env.OPENAI_API_KEY,
 });
-
-// ミドルウェア
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('.')); // 静的ファイルの提供
 
 // 天領酒造の情報（システムプロンプト）
 const SYSTEM_PROMPT = `
@@ -65,13 +60,64 @@ const SYSTEM_PROMPT = `
 - 質問言語と同じ言語で回答する
 `;
 
-// チャット履歴を保存（セッション管理が必要な場合）
+// チャット履歴を保存（メモリ内、実際の本番環境ではRedisなどを使用推奨）
 const chatSessions = new Map();
 
-// チャットエンドポイント
-app.post('/api/chat', async (req, res) => {
+// 言語検出ヘルパー関数
+function detectLanguage(text) {
+    if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) {
+        return 'ja'; // 日本語
+    } else if (/[\u4E00-\u9FFF]/.test(text)) {
+        return 'zh'; // 中国語
+    } else if (/[\uAC00-\uD7AF]/.test(text)) {
+        return 'ko'; // 韓国語
+    } else {
+        return 'en'; // デフォルトは英語
+    }
+}
+
+// Serverless Function のメインハンドラー
+module.exports = async (req, res) => {
+    // CORS設定
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // OPTIONS リクエスト（プリフライト）への対応
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
+    // GET リクエストへの対応（ヘルスチェック）
+    if (req.method === 'GET') {
+        res.status(200).json({ 
+            status: 'ok', 
+            service: 'Tenryo Chatbot API',
+            timestamp: new Date().toISOString()
+        });
+        return;
+    }
+
+    // POST リクエストのみ処理
+    if (req.method !== 'POST') {
+        res.status(405).json({ success: false, error: 'Method not allowed' });
+        return;
+    }
+
     try {
         const { message, sessionId = 'default', language = 'auto' } = req.body;
+
+        if (!message) {
+            res.status(400).json({ success: false, error: 'Message is required' });
+            return;
+        }
+
+        // APIキーの確認
+        if (!process.env.OPENAI_API_KEY) {
+            res.status(500).json({ success: false, error: 'OpenAI API key not configured' });
+            return;
+        }
 
         // セッション履歴を取得または初期化
         if (!chatSessions.has(sessionId)) {
@@ -81,10 +127,10 @@ app.post('/api/chat', async (req, res) => {
 
         // OpenAI API呼び出し
         const completion = await openai.chat.completions.create({
-            model: "gpt-4-turbo-preview", // または "gpt-3.5-turbo" でコスト削減
+            model: "gpt-3.5-turbo", // コスト効率のためgpt-3.5-turboを使用
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                ...history,
+                ...history.slice(-10), // 最新10メッセージのみ保持
                 { role: "user", content: message }
             ],
             temperature: 0.7,
@@ -104,43 +150,32 @@ app.post('/api/chat', async (req, res) => {
             history.splice(0, 2);
         }
 
-        res.json({ 
+        res.status(200).json({ 
             success: true, 
             response: response,
-            detectedLanguage: detectLanguage(message)
+            detectedLanguage: detectLanguage(message),
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ 
+        
+        // エラーの種類に応じて適切なメッセージを返す
+        let errorMessage = 'チャットボットエラーが発生しました。';
+        let statusCode = 500;
+
+        if (error.code === 'insufficient_quota') {
+            errorMessage = 'API使用制限に達しました。しばらく時間をおいてからお試しください。';
+            statusCode = 429;
+        } else if (error.code === 'invalid_api_key') {
+            errorMessage = 'API設定エラーが発生しました。';
+            statusCode = 401;
+        }
+
+        res.status(statusCode).json({ 
             success: false, 
-            error: 'チャットボットエラーが発生しました。',
-            details: error.message 
+            error: errorMessage,
+            timestamp: new Date().toISOString()
         });
     }
-});
-
-// 言語検出ヘルパー関数
-function detectLanguage(text) {
-    // 簡単な言語検出（実際にはより高度な検出が必要）
-    if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) {
-        return 'ja'; // 日本語
-    } else if (/[\u4E00-\u9FFF]/.test(text)) {
-        return 'zh'; // 中国語
-    } else if (/[\uAC00-\uD7AF]/.test(text)) {
-        return 'ko'; // 韓国語
-    } else {
-        return 'en'; // デフォルトは英語
-    }
-}
-
-// ヘルスチェック
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', service: 'Tenryo Chatbot API' });
-});
-
-// サーバー起動
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log('Make sure to set OPENAI_API_KEY in .env file');
-});
+};

@@ -18,11 +18,6 @@
   to = "/mobile.html"
   status = 200
 
-# 404フォールバック（最後に配置）
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 # セキュリティヘッダー
 [[headers]]

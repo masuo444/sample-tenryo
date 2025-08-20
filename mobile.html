@@ -176,16 +176,16 @@
         }
 
         .hero h1 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--bright-gold);
-            margin-bottom: 0.3rem;
-            line-height: 1.2;
+            margin-bottom: 0.2rem;
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             opacity: 0.95;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         /* クラバトラー紹介（モバイル） */
@@ -378,65 +378,37 @@
         /* GPT APIステータス（モバイル） */
         .api-status-mobile {
             position: fixed;
-            bottom: calc(var(--safe-area-inset-bottom) + 20px);
-            left: 20px;
-            width: 70px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #e1e5e9;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            bottom: calc(var(--safe-area-inset-bottom) + 25px);
+            left: 25px;
+            width: 12px;
+            height: 12px;
             z-index: 99;
-            font-size: 0.7rem;
-            font-weight: 600;
         }
 
-        .api-status-mobile:active {
-            transform: scale(0.95);
-        }
-
-        .status-indicator-mobile {
-            width: 6px;
-            height: 6px;
+        .status-dot-mobile {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* モバイル用ステータス色 */
-        .api-status-mobile.checking .status-indicator-mobile {
+        .api-status-mobile.checking .status-dot-mobile {
             background: #ffa500;
             animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.6);
         }
 
-        .api-status-mobile.online .status-indicator-mobile {
+        .api-status-mobile.online .status-dot-mobile {
             background: #22c55e;
-            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
         }
 
-        .api-status-mobile.offline .status-indicator-mobile {
+        .api-status-mobile.offline .status-dot-mobile {
             background: #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-        }
-
-        .api-status-mobile.checking {
-            border-color: #ffa500;
-            color: #f59e0b;
-        }
-
-        .api-status-mobile.online {
-            border-color: #22c55e;
-            color: #16a34a;
-        }
-
-        .api-status-mobile.offline {
-            border-color: #ef4444;
-            color: #dc2626;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
         }
 
         /* チャットボット（フルスクリーン） */
@@ -544,11 +516,13 @@
         /* 入力エリア（モバイル） */
         .chatbot-input-mobile {
             padding: 1rem;
-            background: white;
-            border-top: 1px solid #e0e0e0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.98) 100%);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid var(--accent-gold);
             display: flex;
             gap: 0.5rem;
             padding-bottom: calc(var(--safe-area-inset-bottom) + 1rem);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
         }
 
         .chat-input-mobile {
@@ -822,8 +796,8 @@
     <main class="main-content">
         <!-- ヒーローセクション -->
         <section class="hero">
-            <h1>飛騨の恵みが醸す<br>至高の一滴</h1>
-            <p>340年以上の歴史を持つ天領酒造<br>飛騨山脈の伏流水と酒造好適米で醸す極上の日本酒</p>
+            <h1>飛騨の恵みが醸す至高の一滴</h1>
+            <p>340年の伝統・天領酒造が醸す極上の日本酒</p>
         </section>
 
         <!-- クラバトラー紹介 -->
@@ -1063,9 +1037,8 @@
     </footer>
 
     <!-- GPT APIステータス（モバイル） -->
-    <div class="api-status-mobile" id="apiStatusMobile" onclick="checkApiStatus()">
-        <div class="status-indicator-mobile" id="statusIndicatorMobile"></div>
-        <span class="status-text-mobile" id="statusTextMobile">API</span>
+    <div class="api-status-mobile" id="apiStatusMobile" title="GPT API Status">
+        <div class="status-dot-mobile" id="statusDotMobile"></div>
     </div>
 
     <!-- チャットボットFAB -->
@@ -1079,7 +1052,7 @@
             <div class="chatbot-header-info">
                 <div class="chatbot-avatar">天</div>
                 <div>
-                    <div style="font-weight: bold;">クラバトラー</div>
+                    <div style="font-weight: bold;">天領酒造クラバトラー</div>
                     <div style="font-size: 0.8rem; opacity: 0.9;">AI酒蔵ガイド</div>
                 </div>
             </div>
@@ -1463,13 +1436,10 @@
 
         // GPT APIステータスチェック機能（モバイル）
         async function checkApiStatus() {
-            const button = document.getElementById('apiStatusMobile');
-            const indicator = document.getElementById('statusIndicatorMobile');
-            const text = document.getElementById('statusTextMobile');
+            const indicator = document.getElementById('apiStatusMobile');
             
             // チェック中状態
-            button.className = 'api-status-mobile checking';
-            text.textContent = 'チェック中';
+            indicator.className = 'api-status-mobile checking';
             
             try {
                 const response = await fetch('/.netlify/functions/health');
@@ -1477,19 +1447,16 @@
                 
                 if (response.ok && data.status === 'ok' && data.openai_configured) {
                     // オンライン状態
-                    button.className = 'api-status-mobile online';
-                    text.textContent = 'オンライン';
+                    indicator.className = 'api-status-mobile online';
                     console.log('✅ GPT API サーバーに接続されています');
                 } else {
                     // APIキー未設定またはエラー
-                    button.className = 'api-status-mobile offline';
-                    text.textContent = 'オフライン';
+                    indicator.className = 'api-status-mobile offline';
                     console.log('⚠️ OpenAI APIキーが設定されていません');
                 }
             } catch (error) {
                 // 接続エラー
-                button.className = 'api-status-mobile offline';
-                text.textContent = 'オフライン';
+                indicator.className = 'api-status-mobile offline';
                 console.log('⚠️ GPT APIサーバーに接続できません:', error);
             }
         }

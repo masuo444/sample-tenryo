@@ -385,69 +385,40 @@
             fill: var(--color-primary);
         }
 
-        /* GPT APIステータスボタン */
-        .api-status-button {
+        /* GPT APIステータスインジケーター */
+        .api-status-indicator {
             position: fixed;
-            bottom: 30px;
+            bottom: 35px;
             right: 110px;
-            width: 80px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #e1e5e9;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            width: 14px;
+            height: 14px;
             z-index: 998;
-            font-size: 0.75rem;
-            font-weight: 600;
         }
 
-        .api-status-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
+        .status-dot {
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* ステータス色 */
-        .api-status-button.checking .status-indicator {
+        .api-status-indicator.checking .status-dot {
             background: #ffa500;
             animation: pulse 1.5s infinite;
+            box-shadow: 0 0 12px rgba(255, 165, 0, 0.6);
         }
 
-        .api-status-button.online .status-indicator {
+        .api-status-indicator.online .status-dot {
             background: #22c55e;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
         }
 
-        .api-status-button.offline .status-indicator {
+        .api-status-indicator.offline .status-dot {
             background: #ef4444;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
-
-        .api-status-button.checking {
-            border-color: #ffa500;
-            color: #f59e0b;
-        }
-
-        .api-status-button.online {
-            border-color: #22c55e;
-            color: #16a34a;
-        }
-
-        .api-status-button.offline {
-            border-color: #ef4444;
-            color: #dc2626;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
         }
 
         @keyframes pulse {
@@ -1228,9 +1199,8 @@
     </footer>
 
     <!-- GPT APIステータス -->
-    <div class="api-status-button" id="apiStatusButton" onclick="checkApiStatus()">
-        <div class="status-indicator" id="statusIndicator"></div>
-        <span class="status-text" id="statusText">API</span>
+    <div class="api-status-indicator" id="apiStatusIndicator" title="GPT API Status">
+        <div class="status-dot" id="statusDot"></div>
     </div>
 
     <!-- チャットボット -->
@@ -1244,7 +1214,7 @@
         <div class="chatbot-header">
             <h3>
                 <span>🍶</span>
-                天領酒造AIアシスタント
+                天領酒造クラバトラー
             </h3>
             <button class="chatbot-close" onclick="toggleChatbot()">×</button>
         </div>
@@ -1348,15 +1318,12 @@
             checkApiStatus();
         });
         
-        // API状態確認（ボタン付き）
+        // API状態確認（インジケーター）
         async function checkApiStatus() {
-            const button = document.getElementById('apiStatusButton');
-            const indicator = document.getElementById('statusIndicator');
-            const text = document.getElementById('statusText');
+            const indicator = document.getElementById('apiStatusIndicator');
             
             // チェック中状態
-            button.className = 'api-status-button checking';
-            text.textContent = 'チェック中';
+            indicator.className = 'api-status-indicator checking';
             
             try {
                 const response = await fetch('/.netlify/functions/health');
@@ -1364,21 +1331,18 @@
                 
                 if (response.ok && data.status === 'ok' && data.openai_configured) {
                     // オンライン状態
-                    button.className = 'api-status-button online';
-                    text.textContent = 'オンライン';
+                    indicator.className = 'api-status-indicator online';
                     console.log('✅ GPT API サーバーに接続されています');
                     if (chatbot) chatbot.useGPT = true;
                 } else {
                     // APIキー未設定またはエラー
-                    button.className = 'api-status-button offline';
-                    text.textContent = 'オフライン';
+                    indicator.className = 'api-status-indicator offline';
                     console.log('⚠️ OpenAI APIキーが設定されていません');
                     if (chatbot) chatbot.useGPT = false;
                 }
             } catch (error) {
                 // 接続エラー
-                button.className = 'api-status-button offline';
-                text.textContent = 'オフライン';
+                indicator.className = 'api-status-indicator offline';
                 console.log('⚠️ GPT APIサーバーに接続できません:', error);
                 if (chatbot) chatbot.useGPT = false;
             }
